@@ -1,6 +1,6 @@
 # Instalar paquetes ####
 
-## readxl para importar planillas excel ####
+# readxl para importar planillas excel
 if (!require('readxl'))
   install.packages("readxl")
 library(readxl) 
@@ -24,7 +24,7 @@ library(tidyverse)
 
 
 
-# Importar datos ###
+# Importar datos ####
 
 # Se deben descargar las planillas del repositorio https://www.sedeco.gov.py/index.php/publicaciones/monitoreo-canasta-familiar #
 
@@ -333,7 +333,7 @@ datos2022<-datos2022%>%gather(key="Mes",value="Precio", -RUBRO)%>%
 
 datos2022$Anho <- "2022"
 
-## Unimos en un solo dataset ####
+# Unimos en un solo dataset ####
 
 canasta_familiar=bind_rows(datos2015, datos2016, datos2017, datos2018, datos2019, datos2020, datos2021, datos2022)
 
@@ -343,7 +343,7 @@ canasta_familiar=bind_rows(datos2015, datos2016, datos2017, datos2018, datos2019
 
 summary(canasta_familiar)
 
-## Obteniendo Precios maximos y mínimos por producto ####
+# Obteniendo Precios maximos y mínimos por producto ####
 
 canasta_familiarsinnulosmax2022 = canasta_familiarsinnulos %>% filter(Anho %in% c(2022)) %>% group_by(RUBRO, Anho) %>% summarise(PrecioMax2022 = max(Precio))
 
@@ -355,7 +355,7 @@ canasta_familiar_con_DIferencias = mutate(df2, DiferenciaPrecio = PrecioMax - Pr
 
 canasta_familiar_con_DIferencias = mutate(canasta_familiar_con_DIferencias, DiferenciaPrecioPorcentaje = (DiferenciaPrecio*100)/PrecioMax)
 
-# Obteniendo Precios maximos por producto ####
+# Obteniendo Precios mas aumentados por producto ####
 
 RUBROSPrecioMax = canasta_familiar_con_DIferencias %>%
   arrange(desc(DiferenciaPrecioPorcentaje)) %>%
@@ -364,7 +364,7 @@ RUBROSPrecioMax<-RUBROSPrecioMax["RUBRO"]
 
 RUBROSPrecioMax
 
-# Obteniendo Precios minimos por producto ####
+# Obteniendo Precios menos variados por producto ####
 
 RUBROSPrecioMin = canasta_familiar_con_DIferencias %>%
   arrange(DiferenciaPrecioPorcentaje) %>%
@@ -393,4 +393,43 @@ canasta_familiar %>%
   geom_boxplot() + # elementos de geometría 
   facet_wrap( RUBRO ~ Anho, ncol = 8)  # elementos de diagramación 
 
+# Extraemos el pvalor de las comparaciones ####
 
+x1 <- canasta_familiar %>%
+  filter(Anho %in% c("2019")) %>%
+  filter(RUBRO %in% c("Aceite de soja - 900cc"))  %>%
+  select("Precio")
+
+x2 <- canasta_familiar %>%
+  filter(Anho %in% c("2022")) %>%
+  filter(RUBRO %in% c("Aceite de soja - 900cc"))  %>%
+  select("Precio")
+
+t.test(x1,x2)
+
+
+
+x3 <- canasta_familiar %>%
+  filter(Anho %in% c("2019")) %>%
+  filter(RUBRO %in% c("Banana karape (Kg.)"))  %>%
+  select("Precio")
+
+x4 <- canasta_familiar %>%
+  filter(Anho %in% c("2022")) %>%
+  filter(RUBRO %in% c("Banana karape (Kg.)"))  %>%
+  select("Precio")
+
+t.test(x3,x4)
+
+
+x5 <- canasta_familiar %>%
+  filter(Anho %in% c("2019")) %>%
+  filter(RUBRO %in% c("Aceite de soja - 900cc"))  %>%
+  select("Precio")
+
+x6 <- canasta_familiar %>%
+  filter(Anho %in% c("2022")) %>%
+  filter(RUBRO %in% c("Aceite de soja - 900cc"))  %>%
+  select("Precio")
+
+t.test(x5,x6)
