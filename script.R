@@ -339,24 +339,17 @@ canasta_familiar=bind_rows(datos2015, datos2016, datos2017, datos2018, datos2019
 
 ## Extraemos valores nulos ####
 
-canasta_familiarsinnulos <- canasta_familiar[!is.na(canasta_familiar$Precio),]
-
-st_options(lang = "es") #Translations
-summarytools::view(dfSummary(canasta_familiarsinnulos), 
-                   footnote = NA, 
-                   valid.col = FALSE)
-
+#canasta_familiarsinnulos <- canasta_familiar[!is.na(canasta_familiar$Precio),]
 
 summary(canasta_familiar)
 
-
 ## Obteniendo Precios maximos y mínimos por producto ####
 
-canasta_familiarsinnulosmax = canasta_familiarsinnulos %>% filter(Anho %in% c(2022)) %>% group_by(RUBRO, Anho) %>% summarise(PrecioMax = max(Precio))
+canasta_familiarsinnulosmax2022 = canasta_familiarsinnulos %>% filter(Anho %in% c(2022)) %>% group_by(RUBRO, Anho) %>% summarise(PrecioMax2022 = max(Precio))
 
-canasta_familiarsinnulosmin = canasta_familiarsinnulos %>% filter(Anho %in% c(2015)) %>% group_by(RUBRO, Anho) %>% summarise(PrecioMin = min(Precio))
+canasta_familiarsinnulosmin2019 = canasta_familiarsinnulos %>% filter(Anho %in% c(2019)) %>% group_by(RUBRO, Anho) %>% summarise(PrecioMax2019 = max(Precio))
 
-df2 <- canasta_familiarsinnulosmax %>% inner_join( canasta_familiarsinnulosmin, by=c('RUBRO'='RUBRO')) #, 'Anho'='Anho'))
+df2 <- canasta_familiarsinnulosmax2022 %>% inner_join( canasta_familiarsinnulosmin2019, by=c('RUBRO'='RUBRO')) #, 'Anho'='Anho'))
 
 canasta_familiar_con_DIferencias = mutate(df2, DiferenciaPrecio = PrecioMax - PrecioMin)
 
@@ -371,7 +364,7 @@ RUBROSPrecioMax<-RUBROSPrecioMax["RUBRO"]
 
 RUBROSPrecioMax
 
-# Obteniendo Precios maximos por producto ####
+# Obteniendo Precios minimos por producto ####
 
 RUBROSPrecioMin = canasta_familiar_con_DIferencias %>%
   arrange(DiferenciaPrecioPorcentaje) %>%
@@ -380,10 +373,16 @@ RUBROSPrecioMin<-RUBROSPrecioMin["RUBRO"]
 
 RUBROSPrecioMin
 
-# Diagrama de caja para rubros con precios altos ####
+# Diagrama de caja para rubros con precios mas altos ####
 
 canasta_familiar %>% 
-  filter(RUBRO %in% c("Zanahoria (Kg.)"))  %>%
+  filter(RUBRO %in% c("Aceite de soja - 900cc"))  %>%
+  ggplot(aes(x = RUBRO, y = Precio)) + # elementos de estética 
+  geom_boxplot() + # elementos de geometría 
+  facet_wrap( RUBRO ~ Anho, ncol = 8)  # elementos de diagramación 
+
+canasta_familiar %>% 
+  filter(RUBRO %in% c("Mandioca (Kg.)"))  %>%
   ggplot(aes(x = RUBRO, y = Precio)) + # elementos de estética 
   geom_boxplot() + # elementos de geometría 
   facet_wrap( RUBRO ~ Anho, ncol = 8)  # elementos de diagramación 
@@ -394,9 +393,4 @@ canasta_familiar %>%
   geom_boxplot() + # elementos de geometría 
   facet_wrap( RUBRO ~ Anho, ncol = 8)  # elementos de diagramación 
 
-canasta_familiar %>% 
-  filter(RUBRO %in% c("Mandioca (Kg.)"))  %>%
-  ggplot(aes(x = RUBRO, y = Precio)) + # elementos de estética 
-  geom_boxplot() + # elementos de geometría 
-  facet_wrap( RUBRO ~ Anho, ncol = 8)  # elementos de diagramación 
 
