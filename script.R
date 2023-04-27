@@ -351,9 +351,9 @@ canasta_familiarsinnulosmin2019 = canasta_familiarsinnulos %>% filter(Anho %in% 
 
 df2 <- canasta_familiarsinnulosmax2022 %>% inner_join( canasta_familiarsinnulosmin2019, by=c('RUBRO'='RUBRO')) #, 'Anho'='Anho'))
 
-canasta_familiar_con_DIferencias = mutate(df2, DiferenciaPrecio = PrecioMax - PrecioMin)
+canasta_familiar_con_DIferencias = mutate(df2, DiferenciaPrecio = PrecioMax2022 - PrecioMax2019)
 
-canasta_familiar_con_DIferencias = mutate(canasta_familiar_con_DIferencias, DiferenciaPrecioPorcentaje = (DiferenciaPrecio*100)/PrecioMax)
+canasta_familiar_con_DIferencias = mutate(canasta_familiar_con_DIferencias, DiferenciaPrecioPorcentaje = (DiferenciaPrecio*100)/PrecioMax2019)
 
 # Obteniendo Precios mas aumentados por producto ####
 
@@ -411,12 +411,12 @@ t.test(x1,x2)
 
 x3 <- canasta_familiar %>%
   filter(Anho %in% c("2019")) %>%
-  filter(RUBRO %in% c("Banana karape (Kg.)"))  %>%
+  filter(RUBRO %in% c("Mandioca (Kg.)"))  %>%
   select("Precio")
 
 x4 <- canasta_familiar %>%
   filter(Anho %in% c("2022")) %>%
-  filter(RUBRO %in% c("Banana karape (Kg.)"))  %>%
+  filter(RUBRO %in% c("Mandioca (Kg.)"))  %>%
   select("Precio")
 
 t.test(x3,x4)
@@ -424,12 +424,12 @@ t.test(x3,x4)
 
 x5 <- canasta_familiar %>%
   filter(Anho %in% c("2019")) %>%
-  filter(RUBRO %in% c("Aceite de soja - 900cc"))  %>%
+  filter(RUBRO %in% c("Banana karape (Kg.)"))  %>%
   select("Precio")
 
 x6 <- canasta_familiar %>%
   filter(Anho %in% c("2022")) %>%
-  filter(RUBRO %in% c("Aceite de soja - 900cc"))  %>%
+  filter(RUBRO %in% c("Banana karape (Kg.)"))  %>%
   select("Precio")
 
 t.test(x5,x6)
