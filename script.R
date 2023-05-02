@@ -23,11 +23,8 @@ library(tidyverse)
 
 
 
-
 # Importar datos ####
-
 # Se deben descargar las planillas del repositorio https://www.sedeco.gov.py/index.php/publicaciones/monitoreo-canasta-familiar #
-
 ## Importamos los datos de la planilla del 2015 ####
 
 datos2015 <- read_excel("tp/data/Monitoreo de Precios 2015.xlsx", sheet = 1, col_names=TRUE, skip = 9)
@@ -264,41 +261,6 @@ datos2021<-datos2021%>%gather(key="Mes",value="Precio", -RUBRO)%>%
 datos2021$Anho <- "2021"
 
 
-## Importamos los datos de la planilla del 2020 ####
-
-datos2020 <- read_excel("tp/data/Consolidado Mensual Enero a Diciembre 2020.xlsx", sheet = 1, col_names=TRUE, skip = 6)
-
-# Borramos la primera columna #
-
-datos2020 <- datos2020 %>% select(-1)
-
-# Modificamos el nombre de la columna por el que corresponde #
-
-datos2020 <-datos2020 %>% rename("RUBRO"="Productos")
-datos2020 <-datos2020 %>% rename("1"="43831")
-datos2020 <-datos2020 %>% rename("2"="43862")
-datos2020 <-datos2020 %>% rename("3"="43891")
-datos2020 <-datos2020 %>% rename("4"="43922")
-datos2020 <-datos2020 %>% rename("5"="43952")
-datos2020 <-datos2020 %>% rename("6"="43983")
-datos2020 <-datos2020 %>% rename("7"="44013")
-datos2020 <-datos2020 %>% rename("8"="44044")
-datos2020 <-datos2020 %>% rename("9"="44075")
-datos2020 <-datos2020 %>% rename("10"="44105")
-datos2020 <-datos2020 %>% rename("11"="44136")
-datos2020 <-datos2020 %>% rename("12"="44166")
-
-datos2020 <- datos2020 %>% select(-14)
-
-# Convertimos datos anchos a datos altos #
-
-datos2020<-datos2020%>%gather(key="Mes",value="Precio", -RUBRO)%>% 
-  #Ordenamos por proceso
-  arrange(RUBRO)
-
-datos2020$Anho <- "2020"
-
-
 ## Importamos los datos de la planilla del 2022 ####
 
 datos2022 <- read_excel("tp/data/Canasta Basica Enero a Diciembre 2022_final_pp.xlsx", sheet = 1, col_names=TRUE, skip = 6)
@@ -333,17 +295,47 @@ datos2022<-datos2022%>%gather(key="Mes",value="Precio", -RUBRO)%>%
 
 datos2022$Anho <- "2022"
 
+
+
+
+
+
+
 # Unimos en un solo dataset ####
 
 canasta_familiar=bind_rows(datos2015, datos2016, datos2017, datos2018, datos2019, datos2020, datos2021, datos2022)
 
 ## Extraemos valores nulos ####
 
-#canasta_familiarsinnulos <- canasta_familiar[!is.na(canasta_familiar$Precio),]
+canasta_familiarsinnulos <- canasta_familiar[!is.na(canasta_familiar$Precio),]
 
-summary(canasta_familiar)
+## Vemos un resumen ####
 
-# Obteniendo Precios maximos y mínimos por producto ####
+summary(canasta_familiarsinnulos)
+
+
+# Obteniendo Precios maximos entre 2015 y 2019 ####
+
+canasta_familiarsinnulosmax2019 = canasta_familiarsinnulos %>% filter(Anho %in% c(2019)) %>% group_by(RUBRO, Anho) %>% summarise(PrecioMax2019 = max(Precio))
+
+canasta_familiarsinnulosmin2015 = canasta_familiarsinnulos %>% filter(Anho %in% c(2015)) %>% group_by(RUBRO, Anho) %>% summarise(PrecioMax2015 = max(Precio))
+
+df3 <- canasta_familiarsinnulosmax2019 %>% inner_join( canasta_familiarsinnulosmin2015, by=c('RUBRO'='RUBRO')) #, 'Anho'='Anho'))
+
+canasta_familiar_con_DIferencias2019_2015 = mutate(df3, DiferenciaPrecio = PrecioMax2019 - PrecioMax2015)
+
+canasta_familiar_con_DIferencias2019_2015 = mutate(canasta_familiar_con_DIferencias2019_2015, DiferenciaPrecioPorcentaje = (DiferenciaPrecio*100)/PrecioMax2019)
+
+RUBROSPrecioMax2019_2015 = canasta_familiar_con_DIferencias2019_2015 %>%
+  arrange(desc(DiferenciaPrecioPorcentaje))
+
+# Precios maximos entre 2015 y 2019 ordenados de manera descendente####
+# Se observa que la variación no sobrepasa el 35,5 % en un periodo de 4 años
+
+RUBROSPrecioMax2019_2015
+
+
+# Obteniendo Precios maximos entre 2019 y 2022 ####
 
 canasta_familiarsinnulosmax2022 = canasta_familiarsinnulos %>% filter(Anho %in% c(2022)) %>% group_by(RUBRO, Anho) %>% summarise(PrecioMax2022 = max(Precio))
 
@@ -357,21 +349,21 @@ canasta_familiar_con_DIferencias = mutate(canasta_familiar_con_DIferencias, Dife
 
 # Obteniendo Precios mas aumentados por producto ####
 
+# Precios maximos entre 2019 y 2022 ordenados de manera descendente####
+# Se observa más de la mitad de los productos sobrepasa el 35,5 % en este periodo de 4 años
+#, lo que representa que más de la mitad de los productos superan al pico máximo del periodo anterior 
+
+canasta_familiar_con_DIferencias %>%
+  arrange(desc(DiferenciaPrecioPorcentaje)) %>% view()
+
+# Identificamos los 3 productos con precios mas aumentados por producto para generár gráficos tipo boxplot
+
 RUBROSPrecioMax = canasta_familiar_con_DIferencias %>%
-  arrange(desc(DiferenciaPrecioPorcentaje)) %>%
+  arrange(desc(DiferenciaPrecioPorcentaje)) %>% 
   head(3)
 RUBROSPrecioMax<-RUBROSPrecioMax["RUBRO"]
 
 RUBROSPrecioMax
-
-# Obteniendo Precios menos variados por producto ####
-
-RUBROSPrecioMin = canasta_familiar_con_DIferencias %>%
-  arrange(DiferenciaPrecioPorcentaje) %>%
-  head(3)
-RUBROSPrecioMin<-RUBROSPrecioMin["RUBRO"]
-
-RUBROSPrecioMin
 
 # Diagrama de caja para rubros con precios mas altos ####
 
@@ -406,7 +398,6 @@ x2 <- canasta_familiar %>%
   select("Precio")
 
 t.test(x1,x2)
-
 
 
 x3 <- canasta_familiar %>%
