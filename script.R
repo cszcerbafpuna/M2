@@ -1,3 +1,18 @@
+# Materia TÓPICOS DE ESTADÍSTICA ORIENTADA A LA INVESTIGACIÓN
+# Maestría en TICs
+# Facultad Politécnica - Universidad Nacional de Asunción
+# Mayo 2023
+
+# Autores:
+# Jose Daian Cabrera
+# Christian Szcerba
+# Juan Zorrilla  
+
+# Título:
+# El impacto económico de la pandemia en los precios de la canasta básica familiar en Paraguay: Un enfoque comparativo en el contexto post COVID-19
+# https://github.com/cszcerbafpuna/M2
+
+# Pasos a seguir:
 # Instalar paquetes ####
 
 # readxl para importar planillas excel
